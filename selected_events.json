@@ -1,0 +1,20 @@
+[
+  {
+    "event_id": 1234567,
+    "status": "notstarted",
+    "detail_id": null,
+    "is_editor": false
+  },
+  {
+    "event_id": 2345678,
+    "status": "inprogress",
+    "detail_id": 11,
+    "is_editor": false
+  },
+  {
+    "event_id": 3456789,
+    "status": "finished",
+    "detail_id": 22,
+    "is_editor": false
+  }
+]
