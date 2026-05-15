@@ -1,58 +1,13 @@
 [
-  {
-    "event_id": 14023429,
-    "status": "notstarted",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 16173051,
-    "status": "notstarted",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 15942009,
-    "status": "notstarted",
-    "detail_id": null,
-    "is_editor": false
-  },
+  {"event_id": 14023928, "status": "notstarted", "detail_id": null, "is_editor": false},
+  {"event_id": 15353039, "status": "notstarted", "detail_id": null, "is_editor": false},
+  {"event_id": 16022832, "status": "notstarted", "detail_id": null, "is_editor": false},
 
-  {
-    "event_id": 14023928,
-    "status": "inprogress",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 14109920,
-    "status": "inprogress",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 16153571,
-    "status": "inprogress",
-    "detail_id": null,
-    "is_editor": false
-  },
+  {"event_id": 16173051, "status": "inprogress", "detail_id": null, "is_editor": false},
+  {"event_id": 15858596, "status": "inprogress", "detail_id": null, "is_editor": false},
+  {"event_id": 14081766, "status": "inprogress", "detail_id": null, "is_editor": false},
 
-  {
-    "event_id": 16114067,
-    "status": "finished",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 15549839,
-    "status": "finished",
-    "detail_id": null,
-    "is_editor": false
-  },
-  {
-    "event_id": 16171173,
-    "status": "finished",
-    "detail_id": null,
-    "is_editor": false
-  }
+  {"event_id": 14109920, "status": "finished", "detail_id": null, "is_editor": false},
+  {"event_id": 14023417, "status": "finished", "detail_id": null, "is_editor": false},
+  {"event_id": 16114067, "status": "finished", "detail_id": null, "is_editor": false}
 ]

@@ -6,7 +6,6 @@ from typing import Any
 import requests
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL", "https://api.sofascore.com/api/v1")
@@ -15,8 +14,15 @@ TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 10))
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", 2))
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0",
-    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Safari/605.1.15",
+    "Accept": "*/*",
+    "Cache-Control": "max-age=0",
+    "Referer": "https://www.sofascore.com/football/match/auckland-fc-adelaide-united/Wibszevg",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "X-Requested-With": "916c14",
+    "Cookie": "cto_bidid=CzHTTl94enozeXFBbjc5RCUyRlFHZmUwVWVhUHlYWTBZYSUyQnBNOXR2Y1djTmRadXJOV29wWTlSYXRGRWxydFRtd0szMlBDZkR2cHR5dnM5dzhOR1BZZERERjd2elElM0QlM0Q; cto_bundle=SgAeHV9yRE9tMTUlMkIzRk90YnFnWFFmcGlHNlJOMmp2aUJOOU5mbVdHSSUyQkZwM3F6SVklMkZ6d1ZJc1NTQjdoT0UwOGhFRDk1UUY4cXprcHh1Z3JRYkhXNW5Ud1QzU01KSWwzUlNid0RDUzlBMnFhWUtkTmhhSVJQR1k4eDNQNHp2M1dqM2JRdA; _ga=GA1.1.1396489115.1778851201; _adv_sid=9bf6125c-a4fa-4a2d-9765-8c84edf125f7; _adv_uid=24fdf0ae-c8b8-4d86-8836-987850eff555",
 }
 
 ENDPOINTS = [
@@ -28,6 +34,15 @@ ENDPOINTS = [
     "player-statistics",
 ]
 
+USEFUL_KEYS: dict[str, str] = {
+    "statistics":        "statistics",
+    "incidents":         "incidents",
+    "lineups":           "home",
+    "graph":             "graphPoints",
+    "momentum":          "momentum",
+    "player-statistics": "home",
+}
+
 
 def load_events() -> list[dict]:
     with open("selected_events.json", "r") as file:
@@ -35,36 +50,33 @@ def load_events() -> list[dict]:
 
 
 def normalize_status_code(status_code: int) -> int | str:
-    # 403 means upstream blocked automated access.
     if status_code == 403:
         return "blocked"
-
     return status_code
 
 
 def classify_response(
+    endpoint: str,
     http_status: int | str,
     body: Any,
 ) -> tuple[bool, list[str]]:
-    # Only HTTP 200 can be useful.
-    if http_status != 200:
+    if http_status != 200 or not body or not isinstance(body, dict):
         return False, []
 
-    if not body:
-        return False, []
+    top_keys = list(body.keys())[:10]
 
-    if isinstance(body, dict):
-        top_keys = list(body.keys())
+    key = USEFUL_KEYS.get(endpoint)
+    if key is None:
+        return bool(top_keys), top_keys
 
-        if not top_keys:
-            return False, top_keys
-
-        return True, top_keys[:10]
-
-    if isinstance(body, list):
-        return len(body) > 0, []
-
-    return False, []
+    value = body.get(key)
+    if value is None:
+        return False, top_keys
+    if isinstance(value, list):
+        return len(value) > 0, top_keys
+    if isinstance(value, dict):
+        return bool(value), top_keys
+    return False, top_keys
 
 
 def probe_endpoint(
@@ -85,6 +97,7 @@ def probe_endpoint(
                 timeout=TIMEOUT_SECONDS,
             )
 
+
             latency_ms = int((time.time() - started) * 1000)
 
             try:
@@ -95,38 +108,37 @@ def probe_endpoint(
             http_status = normalize_status_code(response.status_code)
 
             useful, top_keys = classify_response(
+                endpoint=endpoint,
                 http_status=http_status,
                 body=body,
             )
 
             return {
-                "event_id": event_id,
-                "status": status,
-                "endpoint": endpoint,
-                "http_status": http_status,
+                "event_id":        event_id,
+                "status":          status,
+                "endpoint":        endpoint,
+                "http_status":     http_status,
                 "raw_http_status": response.status_code,
-                "latency_ms": latency_ms,
-                "body_size": len(response.text),
-                "top_keys": top_keys,
-                "useful": useful,
+                "latency_ms":      latency_ms,
+                "body_size":       len(response.text),
+                "top_keys":        top_keys,
+                "useful":          useful,
             }
 
         except requests.Timeout:
             retries += 1
-
             if retries > MAX_RETRIES:
                 return {
-                    "event_id": event_id,
-                    "status": status,
-                    "endpoint": endpoint,
-                    "http_status": "timeout",
+                    "event_id":        event_id,
+                    "status":          status,
+                    "endpoint":        endpoint,
+                    "http_status":     "timeout",
                     "raw_http_status": None,
-                    "latency_ms": -1,
-                    "body_size": 0,
-                    "top_keys": [],
-                    "useful": False,
+                    "latency_ms":      -1,
+                    "body_size":       0,
+                    "top_keys":        [],
+                    "useful":          False,
                 }
-
             time.sleep(1)
 
 
@@ -159,8 +171,6 @@ def main() -> None:
             )
 
             write_result(result)
-
-            # Basic rate limit to avoid hammering upstream.
             time.sleep(REQUEST_DELAY)
 
 

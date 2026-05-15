@@ -199,17 +199,14 @@ instead of relying only on HTTP status codes.
 ---
 
 # Endpoint Matrix
-
 | Endpoint | notstarted | inprogress | finished |
 |---|---|---|---|
-| statistics | 200 useful | 200 useful | 200 useful |
+| statistics | 200 useful / 404 | 200 useful | 200 useful |
 | incidents | 200 empty | 200 useful | 200 useful |
 | lineups | 200 useful | 200 useful | 200 useful |
-| graph | 200 empty | 200 useful | 404 |
-| momentum | 200 empty | 200 useful | 404 |
-| player-statistics | 404 | 200 empty | 200 useful |
-
----
+| graph | 200 useful / 404 | 200 useful | 200 useful |
+| momentum | 404 | 404 | 404 |
+| player-statistics | 404 | 404 | 404 |
 
 # Key Findings
 

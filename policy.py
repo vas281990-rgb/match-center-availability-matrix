@@ -9,20 +9,20 @@ PREMATCH_ONLY = {
 
 LIVE_ONLY = {
     "live-standings",
-    "momentum",
     "graph",
 }
 
-POSTMATCH_ONLY = {
-    "player-statistics",
-}
+POSTMATCH_ONLY: set = set()
 
 CONTINUOUS = {
     "statistics",
     "incidents",
     "details",
 }
-
+DETAIL_REQUIRED = {
+    "momentum",
+    "player-statistics",
+}
 
 def should_fetch(
     endpoint: str,
@@ -42,6 +42,9 @@ def should_fetch(
     # Hard ban editor events
     if is_editor:
         return False
+    
+    if endpoint in DETAIL_REQUIRED:
+        return detail_id is not None
 
     # Continuous endpoints
     if endpoint in CONTINUOUS:
